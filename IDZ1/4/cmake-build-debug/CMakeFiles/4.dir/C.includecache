@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/User/OS/IDZ1/4/main.c
+sys/types.h
+-
+fcntl.h
+-
+stdio.h
+-
+stdlib.h
+-
+sys/stat.h
+-
+unistd.h
+-
+string.h
+-
+sys/wait.h
+-
+

@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 
 const int buf_size = 5000;
 
@@ -19,7 +20,7 @@ int main(int argc, char *argv[]) {
     ssize_t read_bytes;
     size_t write_size, pipe_size;
 
-    pid_t pid, ppid, chpid, chpid2;
+    pid_t chpid, chpid2;
 
     strcpy(input_file, argv[3]);
     strcpy(output_file, argv[4]);
@@ -66,8 +67,8 @@ int main(int argc, char *argv[]) {
         /* Закрываем входной поток данных, на этом
         родитель прекращает работу */
         close(fd_pipe[1]);
+        wait(NULL);
     } else if (chpid == 0) { // второй процесс
-        sleep(1);
         // Пробуем прочитать из pipe данные в массив
         close(fd_pipe[1]);
         pipe_size = read(fd_pipe[0], buf, 5000);
