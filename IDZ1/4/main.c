@@ -32,7 +32,6 @@ int main(int argc, char *argv[]) {
         printf("Can\'t create pipe\n");
         exit(-1);
     }
-    pid = getpid();
     chpid = fork(); // создание второго процесса
 
     if (chpid < 0) {

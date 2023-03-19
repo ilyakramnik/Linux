@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     ssize_t read_bytes;
     size_t write_size, pipe_size;
 
-    pid_t chpid, chpid2;
+    pid_t chpid;
 
     strcpy(input_file, argv[3]);
     strcpy(output_file, argv[4]);
