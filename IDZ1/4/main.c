@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         printf("Can\'t create pipe\n");
         exit(-1);
     }
-    chpid = fork(); // создание второго потока
+    chpid = fork(); // создание второго процесса
 
     if (chpid < 0) {
         printf("Error with fork\n");
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
             exit(-1);
         }
 
-        chpid2 = fork(); // создание третьего потока
+        chpid2 = fork(); // создание третьего процесса
 
         if (chpid2 > 0) {
             // записываем измененную строку во второй pipe
