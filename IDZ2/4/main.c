@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
                     mybuf.sem_op = 1; // прибавить к значению семафора 1
                     semop(semid, &mybuf, 1); // применяем операцию выше к семафору
                 } else {
-                    printf("Now it is already 10 people watching painting %d, so Visitor %d is waiting/\n",
+                    printf("Now it is already 10 people watching painting %d, so Visitor %d is waiting\n",
                            painting_id + 1, getpid());
                 }
 
