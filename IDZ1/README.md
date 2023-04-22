@@ -30,3 +30,10 @@
 
 **Общая схема задания на 7:**  
 ![Отчет о проделанной работе](https://github.com/ilyakramnik/Linux/blob/d77cf8184d2e3baef33c1776ca48b256f9bba1cf/IDZ1/7/block-scheme.jpg)
+
+## На оценку 8:
+На вход в консоль поступает запуск программы, N1, N2, название файла для чтения и название файла для записи  
+**Пример:** ./a.out 0 16 test1_inp.txt test1_out.txt
+
+**Общая схема задания на 8:**  
+![Отчет о проделанной работе](https://github.com/ilyakramnik/Linux/blob/099713ae4ba1d0b80f36ee2be2f6b5cadfdae47a/IDZ1/8/block-scheme.jpg)
