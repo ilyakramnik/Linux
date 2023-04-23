@@ -101,12 +101,11 @@ int main(int argc, char *argv[]) {
             return 1;
         } else if (pid == 0) {
             int painting_id;
-            int visited_paintings[5] = {0}; // показывает, сколько сейчас человек смотрят какую картину
+            int visited_paintings[5] = {0}; // показывает, сколько картин посмотрел данный посетитель
             mybuf.sem_op = -1; // вычесть из значения семафора 1
             semop(semid, &mybuf, 1); // применяем операцию выше к семафору
             while (1) {
                 painting_id = rand() % NUM_PAINTINGS;
-                // printf("%d %d", painting_id, paintings[painting_id]);
                 if (paintings[painting_id] <= MAX_VISITORS) {
                     int visit_time =
                             rand() % MAX_TIME_ON_PAINTING + 1; // рандомное время просмотра картины (от 1 до 3 секунд)
@@ -127,6 +126,7 @@ int main(int argc, char *argv[]) {
                 if (visited_paintings[0] > 0 && visited_paintings[1] > 0 && visited_paintings[2] > 0
                     && visited_paintings[3] > 0 &&
                     visited_paintings[4] > 0) { // если человек посмотрел все картины, то он уходит из галереи
+                    printf("Visitor %d viewed all paintings and left the gallery.\n", getpid());
                     exit(0);
                 }
             }
@@ -134,7 +134,7 @@ int main(int argc, char *argv[]) {
     }
 
     for (int i = 0; i < num_visitors; ++i) {
-        waitpid(pids[i], &status, 0); // процесс-родитель ждет завершения процесса-ребенка
+        waitpid(pids[i], &status, 0); // процесс-родитель ждет завершения всех процессов-детей
     }
     if (pid > 0) {
         printf("Gallery is closed.\n");
