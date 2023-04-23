@@ -18,16 +18,15 @@ int shm;
 const char *shm_name = "shared_memory";
 int *shm_ptr;
 
-sem_t *start_sem;
-const char *start_sem_name = "start_sem_name";
+int shm_semaphores;
+const char *shm_semaphores_name = "shared_memory_semaphores";
+sem_t *semaphores;
 
 void clear() {
     if (munmap(shm_ptr, NUM_PAINTINGS) == -1) {
         perror("Incorrect munmap");
     }
-    if (sem_close(start_sem) == -1) {
-        perror("Incorrect close of start semaphore");
-    }
+    sem_destroy(&semaphores[0]);
 }
 
 void handle_sigint(int sig) {
@@ -46,7 +45,7 @@ int main(int argc, char *argv[]) {
 
     signal(SIGINT, handle_sigint); // обработчик прерывания
     int num_visitors = atoi(argv[1]);
-	int paintings[NUM_PAINTINGS] = {0};
+    int paintings[NUM_PAINTINGS] = {0};
     int status;
     int shmid;
     pid_t pid, pids[num_visitors];
@@ -66,15 +65,26 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
-	for (int i = 0; i < NUM_PAINTINGS; ++i) {
+    for (int i = 0; i < NUM_PAINTINGS; ++i) {
         shm_ptr[i] = 0;
     }
 
-    if ((start_sem = sem_open(start_sem_name, O_CREAT, 0666, 0)) == 0) {
-        perror("Can't create start semaphore\n");
+    if ((shm_semaphores = shm_open(shm_semaphores_name, O_CREAT | O_RDWR, 0666)) == -1) {
+        perror("Can't create shared memory\n");
         exit(-1);
     }
-	sem_post(start_sem); // прибавить к значению семафора 1
+
+    if (ftruncate(shm_semaphores, 4096) == -1) {
+        perror("Can't truncate shared memory\n");
+        exit(-1);
+    }
+
+    if ((semaphores = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, shm_semaphores, 0)) == MAP_FAILED) {
+        perror("Can't mmap shared memory\n");
+        exit(-1);
+    }
+    sem_init(&semaphores[0], 1, 0);
+    sem_post(&semaphores[0]); // прибавить к значению семафора 1
 
     for (int i = 0; i < num_visitors; ++i) {
         srand(time(NULL) + i * i);
@@ -86,7 +96,7 @@ int main(int argc, char *argv[]) {
         } else if (pid == 0) {
             int painting_id;
             int visited_paintings[5] = {0};  // показывает, сколько картин посмотрел данный посетитель
-            sem_wait(start_sem); // вычесть из значения семафора 1
+            sem_wait(&semaphores[0]); // вычесть из значения семафора 1
             while (1) {
                 painting_id = rand() % NUM_PAINTINGS;
                 if (shm_ptr[painting_id] <= MAX_VISITORS) {
@@ -99,7 +109,7 @@ int main(int argc, char *argv[]) {
                     --shm_ptr[painting_id]; // человек посмотрел картину и отошел от нее
                     visited_paintings[painting_id] = 1; // человек посмотрел n-ую картину
 
-                    sem_post(start_sem); // прибавить к значению семафора 1
+                    sem_post(&semaphores[0]); // прибавить к значению семафора 1
                 } else {
                     printf("Now it is already 10 people watching painting %d, so Visitor %d is waiting\n",
                            painting_id + 1, getpid());
@@ -108,7 +118,7 @@ int main(int argc, char *argv[]) {
                 if (visited_paintings[0] > 0 && visited_paintings[1] > 0 && visited_paintings[2] > 0
                     && visited_paintings[3] > 0 &&
                     visited_paintings[4] > 0) { // если человек посмотрел все картины, то он уходит из галереи
-					printf("Visitor %d viewed all paintings and left the gallery.\n", getpid());
+                    printf("Visitor %d viewed all paintings and left the gallery.\n", getpid());
                     exit(0);
                 }
             }
