@@ -46,7 +46,6 @@ int main(int argc, char *argv[]) {
 
     signal(SIGINT, handle_sigint); // обработчик прерывания
     int num_visitors = atoi(argv[1]);
-	int paintings[NUM_PAINTINGS] = {0};
     int status;
     int shmid;
     pid_t pid, pids[num_visitors];
