@@ -14,6 +14,22 @@
 #define MAX_VISITORS 10
 #define MAX_TIME_ON_PAINTING 3
 
+int *paintings;
+int semid;
+
+void clear(){
+    if (shmdt(paintings) < 0) { // исключаем разделяемую память из адресного пространства
+        printf("Can't detach shared memory\n");
+        exit(-1);
+    }
+    semctl(semid, 0, IPC_RMID, 0); // удаление семафора
+}
+
+void handle_sigint(int sig) {
+    clear();
+    exit(0);
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         printf("Enter: %s num_visitors\n", argv[0]);
@@ -23,13 +39,12 @@ int main(int argc, char *argv[]) {
         return 2;
     }
 
+    signal(SIGINT, handle_sigint); // обработчик прерывания
     int num_visitors = atoi(argv[1]);
     int status;
-    int semid;
     int shmid;
     pid_t pid, pids[num_visitors];
     key_t key;
-    int *paintings;
     char pathname[] = "main.c";
     if ((key = ftok(pathname, 0)) < 0) {
         printf("Can\'t generate key\n");
@@ -78,7 +93,7 @@ int main(int argc, char *argv[]) {
     }
 
     for (int i = 0; i < num_visitors; ++i) {
-        srand(time(NULL)+i);
+        srand(time(NULL)+i*i);
         pids[i] = fork();
         pid = pids[i];
         if (pid < 0) {
@@ -124,11 +139,6 @@ int main(int argc, char *argv[]) {
     if (pid > 0) {
         printf("Gallery is closed.\n");
     }
-
-    if (shmdt(paintings) < 0) { // исключаем разделяемую память из адресного пространства
-        printf("Can't detach shared memory\n");
-        exit(-1);
-    }
-    semctl(semid, 0, IPC_RMID, 0); // удаление семафора
+    clear();
     return 0;
 }
