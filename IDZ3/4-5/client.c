@@ -6,6 +6,7 @@
 #include <time.h>
 
 #define NUM_PAINTINGS 5
+#define WATCHING_TIME 2
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
@@ -70,7 +71,7 @@ int main(int argc, char *argv[]) {
         printf("Started viewing painting %d.\n", painting_id + 1);
         visited_paintings[painting_id]++;
 
-        sleep(1); // Simulate viewing time
+        sleep(rand() % WATCHING_TIME + 1); // Simulate viewing time
     }
 
     printf("Visitor viewed all paintings and left the gallery.\n");
